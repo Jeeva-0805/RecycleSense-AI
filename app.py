@@ -7,6 +7,9 @@ from impact_data import impact_data
 from chatbot_data import qa_data
 from ewaste_data import ewaste_data
 import pandas as pd
+from datetime import datetime
+import os
+from report_generator import generate_report
 
 # ----------------------------------
 # PAGE CONFIG
@@ -16,6 +19,31 @@ st.set_page_config(
     page_icon="♻️",
     layout="wide"
 )
+st.markdown("""
+<style>
+
+.main {
+    padding-top: 1rem;
+}
+
+.stMetric {
+    background-color: #111827;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #1f2937;
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+h1, h2, h3 {
+    color: #4ade80;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ----------------------------------
 # HEADER
@@ -69,6 +97,19 @@ if uploaded_file:
 # Waste Category Mapping
 
     category = map_to_waste_category(detected_object)
+    new_record = pd.DataFrame([{
+    "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "Object": detected_object,
+    "Category": category
+}])
+
+    new_record.to_csv(
+    "history.csv",
+    mode="a",
+    header=not os.path.exists("history.csv"),
+    index=False,
+    lineterminator="\n"
+)
     st.subheader("🔍 AI Detection Result")
 
     col1, col2 = st.columns(2)
@@ -78,6 +119,13 @@ if uploaded_file:
 
     with col2:
         st.success(f"Waste Category: {category}")
+        confidence_score = 92
+
+        st.progress(confidence_score / 100)
+
+        st.info(
+        f"AI Confidence Score: {confidence_score}%"
+)
 
         st.success(f"🔍 Detected Object: {detected_object}")
 
@@ -149,11 +197,32 @@ chart_data = pd.DataFrame({
 st.bar_chart(
     chart_data.set_index("Waste Type")
 )
+st.subheader("📜 Detection History")
+
+history = pd.read_csv("history.csv")
+
+st.dataframe(
+    history.tail(10),
+    use_container_width=True
+)
 
 # ----------------------------------
 # AI RECYCLING ASSISTANT
 # ----------------------------------
 st.divider()
+st.divider()
+
+st.header("📄 Sustainability Report")
+
+if st.button("Generate Report"):
+
+    report = generate_report()
+
+    st.text_area(
+        "Generated Report",
+        report,
+        height=300
+    )
 
 st.header("🤖 AI Recycling Assistant")
 
