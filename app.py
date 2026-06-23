@@ -1,9 +1,12 @@
 import streamlit as st
 from waste_info import waste_data
-from classifier import classify_waste
+from ai_classifier import detect_object
+from waste_mapper import map_to_waste_category
+import tempfile
 from impact_data import impact_data
 from chatbot_data import qa_data
 from ewaste_data import ewaste_data
+import pandas as pd
 
 # ----------------------------------
 # PAGE CONFIG
@@ -11,7 +14,7 @@ from ewaste_data import ewaste_data
 st.set_page_config(
     page_title="RecycleSense AI",
     page_icon="♻️",
-    layout="wide"
+    layout="centered"
 )
 
 # ----------------------------------
@@ -40,14 +43,37 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
 
     st.image(
-        uploaded_file,
-        caption="Uploaded Waste Image",
-        use_container_width=True
-    )
+    uploaded_file,
+    caption="Uploaded Waste Image",
+    width=500
+)
 
-    category = classify_waste(uploaded_file.name)
+    # Save uploaded image temporarily
 
-    st.success(f"Predicted Category: {category}")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
+        tmp_file.write(uploaded_file.getvalue())
+        temp_path = tmp_file.name
+
+# AI Object Detection
+
+    detected_object = detect_object(temp_path)
+
+# Waste Category Mapping
+
+    category = map_to_waste_category(detected_object)
+    st.subheader("🔍 AI Detection Result")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.info(f"Detected Object: {detected_object}")
+
+    with col2:
+        st.success(f"Waste Category: {category}")
+
+        st.success(f"🔍 Detected Object: {detected_object}")
+
+        st.success(f"♻️ Waste Category: {category}")
 
     # Dashboard
     col1, col2, col3 = st.columns(3)
@@ -96,6 +122,25 @@ Environmental Benefit:
 {impact_data[category]['benefit']}
 """
     )
+
+
+st.subheader("📊 Waste Analytics Dashboard")
+
+chart_data = pd.DataFrame({
+    "Waste Type": [
+        "Plastic",
+        "Paper",
+        "Metal",
+        "Glass",
+        "Organic",
+        "E-Waste"
+    ],
+    "Count": [25, 18, 12, 10, 30, 8]
+})
+
+st.bar_chart(
+    chart_data.set_index("Waste Type")
+)
 
 # ----------------------------------
 # AI RECYCLING ASSISTANT

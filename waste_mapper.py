@@ -4,9 +4,10 @@ def map_to_waste_category(object_name):
 
     # Plastic
     if any(word in object_name for word in [
+        "plastic",
+        "plastic_bag",
         "bottle",
-        "water_bottle",
-        "plastic_bag"
+        "water_bottle"
     ]):
         return "Plastic"
 
@@ -22,26 +23,27 @@ def map_to_waste_category(object_name):
     elif any(word in object_name for word in [
         "book",
         "newspaper",
-        "envelope"
+        "envelope",
+        "paper"
     ]):
         return "Paper"
 
     # Glass
     elif any(word in object_name for word in [
-        "wine_bottle",
-        "glass"
+        "glass",
+        "wine_bottle"
     ]):
         return "Glass"
 
     # E-Waste
     elif any(word in object_name for word in [
         "cellular_telephone",
-        "laptop",
         "keyboard",
-        "computer"
+        "computer",
+        "laptop",
+        "monitor"
     ]):
         return "E-Waste"
 
-    # Organic
     else:
         return "Organic"
