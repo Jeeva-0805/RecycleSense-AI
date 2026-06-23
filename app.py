@@ -14,7 +14,7 @@ import pandas as pd
 st.set_page_config(
     page_title="RecycleSense AI",
     page_icon="♻️",
-    layout="centered"
+    layout="wide"
 )
 
 # ----------------------------------
@@ -22,7 +22,15 @@ st.set_page_config(
 # ----------------------------------
 st.title("♻️ RecycleSense AI")
 
-st.markdown("""
+container = st.container()
+
+with container:
+    # upload
+    # detection
+    # dashboard
+    # charts
+
+    st.markdown("""
 ### 🌱 Intelligent Recycling Assistant
 
 Upload an image of waste and receive recycling guidance,
